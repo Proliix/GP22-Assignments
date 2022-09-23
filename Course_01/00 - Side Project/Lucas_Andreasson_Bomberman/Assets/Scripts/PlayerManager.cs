@@ -16,6 +16,8 @@ public class PlayerManager : MonoBehaviour
     public int hp = 3;
     public float invulnerabilityTime = 5;
 
+    [HideInInspector]
+    public bool canKickBombs = false;
     private bool invulnerable = false;
     private bool isDead = false;
     private UIManager uIManager;
@@ -48,14 +50,14 @@ public class PlayerManager : MonoBehaviour
                 SetInvulerability(false);
             }
 
-            if (alpha >= 1 && alphaChangeRate > 0)
+            if (alpha >= 1 && alphaChangeRate > 0 || alpha <= 0.5f && alphaChangeRate < 0)
             {
                 alphaChangeRate *= -1;
             }
-            else if (alpha <= 0.5f && alphaChangeRate < 0)
-            {
-                alphaChangeRate *= -1;
-            }
+            //else if (alpha <= 0.5f && alphaChangeRate < 0)
+            //{
+            //    alphaChangeRate *= -1;
+            //}
             alpha += alphaChangeRate * Time.deltaTime;
             mat.color = new Color(mat.color.r, mat.color.g, mat.color.b, alpha);
 

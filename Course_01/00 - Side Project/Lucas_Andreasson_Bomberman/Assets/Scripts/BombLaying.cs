@@ -80,13 +80,10 @@ public class BombLaying : MonoBehaviour
 
             pManager.SetInvulerability(false);
 
-            // Bit shift the index of the layer (6) to get a bit mask
             int layerMask = 1 << 6;
 
-            // This would cast rays only against colliders in layer 6.
-
             RaycastHit hit;
-            // Does the ray intersect any objects excluding the player layer
+            
             if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out hit, Mathf.Infinity, layerMask))
             {
                 spawnPos = new Vector3(hit.transform.position.x, hit.transform.position.y + 1, hit.transform.position.z);

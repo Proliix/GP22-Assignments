@@ -8,6 +8,7 @@ TagManager:
   - Box
   - Bomb
   - PowerUp
+  - Explosion
   layers:
   - Default
   - TransparentFX
@@ -17,7 +18,7 @@ TagManager:
   - UI
   - Ground
   - Player
-  - 
+  - BombKick
   - 
   - 
   - 

@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class PowerUps : MonoBehaviour
 {
-    public enum PowerupType { sizeUp, sizeDown, bombUp, bombDown, Count }
+    public enum PowerupType { sizeUp, sizeDown, bombUp, bombDown, bombKick }
     public GameObject bombUpModel;
     public GameObject badCross;
+    public GameObject bombKickObj;
 
     [SerializeField]
     PowerupType powerupType;
@@ -15,7 +16,7 @@ public class PowerUps : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        powerupType = (PowerupType)Random.Range(0, ((int)PowerupType.Count));
+        powerupType = (PowerupType)Random.Range(0, System.Enum.GetNames(typeof(PowerupType)).Length);
         mat = gameObject.GetComponent<MeshRenderer>().material;
 
         if (powerupType == PowerupType.sizeUp)
@@ -37,8 +38,11 @@ public class PowerUps : MonoBehaviour
             bombUpModel.SetActive(true);
             badCross.SetActive(true);
         }
-
-
+        else if (powerupType == PowerupType.bombKick)
+        {
+            gameObject.GetComponent<MeshRenderer>().enabled = false;
+            bombKickObj.SetActive(true);
+        }
         Destroy(gameObject, 10);
     }
 
@@ -67,6 +71,11 @@ public class PowerUps : MonoBehaviour
             else if (powerupType == PowerupType.bombDown)
             {
                 other.gameObject.GetComponent<BombLaying>().maxBomb--;
+                Destroy(gameObject);
+            }
+            else if (powerupType == PowerupType.bombKick)
+            {
+                other.gameObject.GetComponent<PlayerManager>().canKickBombs = true;
                 Destroy(gameObject);
             }
         }
