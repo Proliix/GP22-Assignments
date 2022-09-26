@@ -15,9 +15,12 @@ public class PlayerManager : MonoBehaviour
     public int playerNum = 0;
     public int hp = 3;
     public float invulnerabilityTime = 5;
-
-    [HideInInspector]
     public bool canKickBombs = false;
+
+    public GameObject kickTriggerX;
+    public GameObject kickTriggerZ;
+
+
     private bool invulnerable = false;
     private bool isDead = false;
     private UIManager uIManager;
@@ -27,7 +30,7 @@ public class PlayerManager : MonoBehaviour
     private float alphaChangeRate = 0.75f;
     private float alpha = 0.5f;
     private float timer;
-
+    private Vector3 pInput;
 
     // Start is called before the first frame update
     void Start()
@@ -43,6 +46,22 @@ public class PlayerManager : MonoBehaviour
     private void Update()
     {
         timer += Time.deltaTime;
+
+        pInput = new Vector3(Input.GetAxis(GetInput(PlayerInput.Horizontal, playerNum)), 0.0f, Input.GetAxis(GetInput(PlayerInput.Vertical, playerNum)));
+
+        if (canKickBombs)
+        {
+            if (kickTriggerX.GetComponent<KickTrigger>().isTouchingBomb && Input.GetButtonDown(GetInput(PlayerInput.Fire, playerNum)))
+            {
+                kickTriggerX.GetComponent<KickTrigger>().KickBomb();
+            }
+            else if (kickTriggerZ.GetComponent<KickTrigger>().isTouchingBomb && Input.GetButtonDown(GetInput(PlayerInput.Fire, playerNum)))
+            {
+                kickTriggerZ.GetComponent<KickTrigger>().KickBomb();
+            }
+        }
+
+
         if (invulnerable)
         {
             if (timer >= invulnerabilityTime)
@@ -68,6 +87,18 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
+    public bool GetKickTriggerCol()
+    {
+        bool touch = false;
+
+        if (kickTriggerX.GetComponent<KickTrigger>().isTouchingBomb)
+            touch = true;
+
+        if (kickTriggerZ.GetComponent<KickTrigger>().isTouchingBomb && touch == false)
+            touch = true;
+
+        return touch;
+    }
     public void SetInvulerability(bool isActive)
     {
         timer = 0;

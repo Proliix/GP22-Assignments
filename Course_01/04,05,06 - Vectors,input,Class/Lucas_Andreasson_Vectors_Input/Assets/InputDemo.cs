@@ -55,7 +55,7 @@ public class InputDemo : ProcessingLite.GP21
             FloorDetection();
         }
 
-        //Stops the ball from "Vibrating" at low values
+            //Stops the ball from "Vibrating" at low values
         if (inputDirection == Vector2.zero)
         {
             if (velocity.x < 0.05f && velocity.x > -0.05f)

@@ -25,9 +25,15 @@ public class BombManager : MonoBehaviour
     [HideInInspector]
     public bool hasExploded = false;
     private int playerInTrigger = 0;
+    private Rigidbody rBody;
+    private Vector3 moveDir;
+    private float moveSpeed = 4;
+    private bool isMoving = false;
+
 
     private void Start()
     {
+        rBody = gameObject.GetComponent<Rigidbody>();
         //player = GameObject.FindWithTag("Player");
     }
 
@@ -46,9 +52,32 @@ public class BombManager : MonoBehaviour
         }
     }
 
+    private void FixedUpdate()
+    {
+        if (isMoving)
+        {
+            Collider[] colliders = Physics.OverlapBox(transform.position, Vector3.one * 0.45f);
+            foreach (Collider col in colliders)
+            {
+                if (col.tag == "Box" || col.tag == "Wall" || col.tag == "Bomb" && col.gameObject != this.gameObject)
+                {
+                    Debug.Log(col.name);
+                    isMoving = false;
+                    SetGridPos();
+                }
+            }
+            rBody.MovePosition(transform.position + (moveDir * moveSpeed) * Time.deltaTime);
+        }
+    }
+
     public void Explode(bool forceExplode = false)
     {
         hasExploded = true;
+
+        if (isMoving)
+        {
+            SetGridPos();
+        }
 
         if (forceExplode)
         {
@@ -93,10 +122,28 @@ public class BombManager : MonoBehaviour
         }
     }
 
+    public void MoveDirection(Vector3 direction)
+    {
+        moveDir = direction;
+        isMoving = true;
+    }
+
     public void SetPlayerGameobject(GameObject newPLayer, int newPLayerNum)
     {
         player = newPLayer;
         playerNum = newPLayerNum;
+    }
+
+    void SetGridPos()
+    {
+        int layerMask = 1 << 6;
+
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out hit, Mathf.Infinity, layerMask))
+        {
+            transform.position = new Vector3(hit.transform.position.x, hit.transform.position.y + 1, hit.transform.position.z);
+        }
     }
     void InstantiateExplosion(Vector3 stepFromBomb, bool facingZ = true)
     {

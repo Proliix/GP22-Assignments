@@ -59,8 +59,8 @@ public class BombLaying : MonoBehaviour
         {
             bombAmmo = maxBomb;
         }
-        
-        if(lastMaxBomb != maxBomb || lastSize != explosionSize)
+
+        if (lastMaxBomb != maxBomb || lastSize != explosionSize)
         {
             lastMaxBomb = maxBomb;
             lastSize = explosionSize;
@@ -73,34 +73,37 @@ public class BombLaying : MonoBehaviour
         }
         timer += Time.deltaTime;
 
-        if (Input.GetButtonDown(pManager.GetInput(PlayerManager.PlayerInput.Fire,playerNum)) && bombAmmo > 0 && canPutDown)
+        if (pManager.canKickBombs && !pManager.GetKickTriggerCol() || !pManager.canKickBombs)
         {
-            timer = 0;
-            bombAmmo--;
 
-            pManager.SetInvulerability(false);
-
-            int layerMask = 1 << 6;
-
-            RaycastHit hit;
-            
-            if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out hit, Mathf.Infinity, layerMask))
+            if (Input.GetButtonDown(pManager.GetInput(PlayerManager.PlayerInput.Fire, playerNum)) && bombAmmo > 0 && canPutDown)
             {
-                spawnPos = new Vector3(hit.transform.position.x, hit.transform.position.y + 1, hit.transform.position.z);
+                timer = 0;
+                bombAmmo--;
+
+                pManager.SetInvulerability(false);
+
+                int layerMask = 1 << 6;
+
+                RaycastHit hit;
+
+                if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out hit, Mathf.Infinity, layerMask))
+                {
+                    spawnPos = new Vector3(hit.transform.position.x, hit.transform.position.y + 1, hit.transform.position.z);
+                }
+                GameObject playerBomb;
+
+                playerBomb = Instantiate(bomb, spawnPos, bomb.transform.rotation);
+                playerBomb.GetComponent<BombManager>().size = explosionSize;
+                playerBomb.GetComponent<BombManager>().SetPlayerGameobject(gameObject, playerNum);
+                //Destroy(playerBomb, 5);
             }
-
-            GameObject playerBomb;
-            playerBomb = Instantiate(bomb, spawnPos, bomb.transform.rotation);
-            playerBomb.GetComponent<BombManager>().size = explosionSize;
-            playerBomb.GetComponent<BombManager>().SetPlayerGameobject(gameObject,playerNum);
-            //Destroy(playerBomb, 5);
-
         }
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if(other.tag == "Bomb")
+        if (other.tag == "Bomb")
         {
             canPutDown = false;
         }
@@ -108,7 +111,7 @@ public class BombLaying : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if(other.tag == "Bomb")
+        if (other.tag == "Bomb")
         {
             canPutDown = true;
         }
