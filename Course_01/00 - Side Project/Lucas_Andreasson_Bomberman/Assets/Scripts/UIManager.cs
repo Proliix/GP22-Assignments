@@ -15,8 +15,13 @@ public class UIManager : MonoBehaviour
     public TMP_Text p2BombsTextObj;
     public TMP_Text p2SizeTextObj;
 
+    [Header("Game Over")]
     public GameObject gameoverObj;
     public TMP_Text playerWinText;
+    public Button restartButton;
+    public Button exitButton;
+
+
 
     [Tooltip("Timer in seconds")]
     public float timer = 300;
@@ -28,11 +33,13 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
+        Time.timeScale = 1;
         gameoverObj.SetActive(false);
     }
 
     public void GameIsOver(string winnerName, bool isDraw = false)
     {
+        Time.timeScale = 0;
         if (!isDraw)
         {
             playerWinText.text = winnerName + " Wins";

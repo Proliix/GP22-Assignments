@@ -53,7 +53,7 @@ public class GameManager : ProcessingLite.GP21
             if (currentBalls < maxBalls && timer > cooldown)
             {
                 AddNewBall();
-                cooldown = timer + 3;
+                cooldown = timer + 3;   
             }
         }
 

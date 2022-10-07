@@ -61,11 +61,11 @@ public class BombManager : MonoBehaviour
             {
                 if (col.tag == "Box" || col.tag == "Wall" || col.tag == "Bomb" && col.gameObject != this.gameObject)
                 {
-                    Debug.Log(col.name);
                     isMoving = false;
                     SetGridPos();
                 }
             }
+
             rBody.MovePosition(transform.position + (moveDir * moveSpeed) * Time.deltaTime);
         }
     }
@@ -227,7 +227,6 @@ public class BombManager : MonoBehaviour
                 }
             }
         }
-
 
         return returnValue;
     }
