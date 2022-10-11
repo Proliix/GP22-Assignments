@@ -30,10 +30,12 @@ public class UIManager : MonoBehaviour
     private int p1Lives, p2Lives;
     private int p1Bombs, p2Bombs;
     private int p1Size, p2Size;
+    private GameManager gameManager;
 
     void Start()
     {
         Time.timeScale = 1;
+        gameManager = GetComponent<GameManager>();
         gameoverObj.SetActive(false);
     }
 
@@ -44,7 +46,7 @@ public class UIManager : MonoBehaviour
         {
             playerWinText.text = winnerName + " Wins";
         }
-        else if(isDraw)
+        else if (isDraw)
         {
             playerWinText.text = "DRAW";
         }
@@ -99,7 +101,17 @@ public class UIManager : MonoBehaviour
     void Update()
     {
         timer -= Time.deltaTime;
-
-        timerTextObj.text = FormatTime(timer);
+        if (timer >= 0)
+        {
+            timerTextObj.text = FormatTime(timer);
+        }
+        else if (timer < 0)
+        {
+            if (!gameManager.spawningBombs)
+            {
+                gameManager.spawningBombs = true;
+                timerTextObj.text = "OVER TIME";
+            }
+        }
     }
 }

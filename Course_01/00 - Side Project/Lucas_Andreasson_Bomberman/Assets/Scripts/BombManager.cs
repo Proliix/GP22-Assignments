@@ -11,6 +11,7 @@ public class BombManager : MonoBehaviour
     public GameObject powerUp;
     public GameObject bombModel;
 
+    private AudioSource audioSource;
     private float timePerExplosion = 1.25f;
     private float timeToNext = 0.05f;
     private float timer;
@@ -21,7 +22,7 @@ public class BombManager : MonoBehaviour
     private Vector2 posStep;
     private Vector2 negStep;
     private GameObject player;
-    private int playerNum;
+    private int playerNum = -1;
     [HideInInspector]
     public bool hasExploded = false;
     private int playerInTrigger = 0;
@@ -29,11 +30,14 @@ public class BombManager : MonoBehaviour
     private Vector3 moveDir;
     private float moveSpeed = 4;
     private bool isMoving = false;
+    private bool meshOff = false;
 
 
     private void Start()
     {
         rBody = gameObject.GetComponent<Rigidbody>();
+        audioSource = gameObject.GetComponent<AudioSource>();
+        audioSource.pitch = Random.Range(0.5f, 1.5f);
         //player = GameObject.FindWithTag("Player");
     }
 
@@ -90,7 +94,18 @@ public class BombManager : MonoBehaviour
 
             timer = 0;
             hasExploded = false;
-            Destroy(gameObject);
+            if (!audioSource.isPlaying)
+                Destroy(gameObject);
+            else if (!meshOff)
+            {
+                MeshRenderer[] meshes = gameObject.GetComponentsInChildren<MeshRenderer>();
+                for (int i = 0; i < meshes.Length; i++)
+                {
+                    meshes[i].enabled = false;
+                }
+                gameObject.GetComponent<BoxCollider>().enabled = false;
+                meshOff = true;
+            }
         }
         else
         {
@@ -114,6 +129,7 @@ public class BombManager : MonoBehaviour
                 bombModel.transform.localScale = Vector3.zero;
                 bombModel.GetComponent<Animator>().enabled = false;
                 bombModel.GetComponent<MeshRenderer>().enabled = false;
+                if(playerNum >= 0)
                 player.GetComponent<BombLaying>().changeBombAmmo();
             }
 
@@ -147,6 +163,7 @@ public class BombManager : MonoBehaviour
     }
     void InstantiateExplosion(Vector3 stepFromBomb, bool facingZ = true)
     {
+        audioSource.Play();
         GameObject bombExplosion;
 
         bombExplosion = Instantiate(explosionObject, new Vector3(transform.position.x + stepFromBomb.x, transform.position.y + stepFromBomb.y, transform.position.z + stepFromBomb.z), explosionObject.transform.rotation);
