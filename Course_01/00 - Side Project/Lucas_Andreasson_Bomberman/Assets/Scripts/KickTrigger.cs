@@ -14,7 +14,14 @@ public class KickTrigger : MonoBehaviour
     public void KickBomb()
     {
         Vector3 dir = new Vector3(gameObject.transform.localPosition.x, 0, gameObject.transform.localPosition.z);
-        touchedBomb.GetComponent<BombManager>().MoveDirection(dir);
+        if (touchedBomb != null)
+        {
+            touchedBomb.GetComponent<BombManager>().MoveDirection(dir);
+        }
+        else
+        {
+            isTouchingBomb = false;
+        }
     }
 
 

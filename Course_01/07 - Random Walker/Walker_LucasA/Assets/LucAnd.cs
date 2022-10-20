@@ -95,8 +95,8 @@ class LucAnd : IRandomWalker
         positions = new List<Vector2>();
         dangerPos = new List<Vector2>();
         //Select a starting position or use a random one.
-        float x = Random.Range(0, playAreaWidth);
-        float y = Random.Range(0, playAreaHeight);
+        int x = Random.Range(0, playAreaWidth);
+        int y = Random.Range(0, playAreaHeight);
 
         walkerPos = new Vector2(x, y);
         positions.Add(walkerPos);
@@ -304,26 +304,30 @@ class LucAnd : IRandomWalker
         {
             if (holderChildren[i] != playerObj)
             {
-                if (pLitePos[i].x >= (screenSize.x / 2) && pLitePos[i].y >= (screenSize.y / 2))
+                if (pLitePos[i].x > 0 && pLitePos[i].x < screenSize.x || pLitePos[i].y > 0 && pLitePos[i].y < screenSize.y)
                 {
-                    //TOP RIGHT
-                    side[0]++;
 
-                }
-                else if (pLitePos[i].x >= (screenSize.x / 2) && pLitePos[i].y <= (screenSize.y / 2))
-                {
-                    //BOT RIGHT
-                    side[1]++;
-                }
-                else if (pLitePos[i].x <= (screenSize.x / 2) && pLitePos[i].y >= (screenSize.y / 2))
-                {
-                    //TOP LEFT
-                    side[2]++;
-                }
-                else if (pLitePos[i].x <= (screenSize.x / 2) && pLitePos[i].y <= (screenSize.y / 2))
-                {
-                    //BOT LEFT
-                    side[3]++;
+                    if (pLitePos[i].x >= (screenSize.x / 2) && pLitePos[i].y >= (screenSize.y / 2))
+                    {
+                        //TOP RIGHT
+                        side[0]++;
+
+                    }
+                    else if (pLitePos[i].x >= (screenSize.x / 2) && pLitePos[i].y <= (screenSize.y / 2))
+                    {
+                        //BOT RIGHT
+                        side[1]++;
+                    }
+                    else if (pLitePos[i].x <= (screenSize.x / 2) && pLitePos[i].y >= (screenSize.y / 2))
+                    {
+                        //TOP LEFT
+                        side[2]++;
+                    }
+                    else if (pLitePos[i].x <= (screenSize.x / 2) && pLitePos[i].y <= (screenSize.y / 2))
+                    {
+                        //BOT LEFT
+                        side[3]++;
+                    }
                 }
             }
         }
@@ -396,6 +400,8 @@ class LucAnd : IRandomWalker
 
     public Vector2 Movement()
     {
+        Random.InitState((int)System.DateTime.Now.Ticks);
+
         iterations++;
         if (Camera.main != null)
         {
@@ -630,7 +636,7 @@ class LucAnd : IRandomWalker
                 currentListIndex = 0;
         }
 
-
+        Random.InitState(0);
         return nextMove;
     }
 }

@@ -104,19 +104,48 @@ public class WalkerTest : ProcessingLite.GP21
             IRandomWalker walker = new LucAnd();
             walkers.Add(walker);
             //walkerColors.Add(new Vector3(Random.Range(128, 255), Random.Range(128, 255), Random.Range(128, 255)));
-            walkerColors.Add(new Vector3(0, 255, 0));
+            walkerColors.Add(new Vector3(200, 100, 50));
             walkerAlive.Add(true);
             walkerNames.Add(walker.GetName());
         }
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 1; i++)
         {
-            IRandomWalker walker = new Example();
+            IRandomWalker walker = new KevHol();
+            walkers.Add(walker);
+            //walkerColors.Add(new Vector3(Random.Range(128, 255), Random.Range(128, 255), Random.Range(128, 255)));
+            walkerColors.Add(new Vector3(255, 0, 0));
+            walkerAlive.Add(true);
+            walkerNames.Add(walker.GetName());
+        }
+        for (int i = 0; i < 1; i++)
+        {
+            IRandomWalker walker = new AjdTal();
             walkers.Add(walker);
             //walkerColors.Add(new Vector3(Random.Range(128, 255), Random.Range(128, 255), Random.Range(128, 255)));
             walkerColors.Add(new Vector3(0, 0, 255));
             walkerAlive.Add(true);
             walkerNames.Add(walker.GetName());
         }
+        for (int i = 0; i < 1; i++)
+        {
+            IRandomWalker walker = new SamKar();
+            walkers.Add(walker);
+            //walkerColors.Add(new Vector3(Random.Range(128, 255), Random.Range(128, 255), Random.Range(128, 255)));
+            walkerColors.Add(new Vector3(0, 255, 0));
+            walkerAlive.Add(true);
+            walkerNames.Add(walker.GetName());
+        }
+
+        //for (int i = 0; i < 10; i++)
+        //{
+        //    IRandomWalker walker = new Example();
+        //    walkers.Add(walker);
+        //    //walkerColors.Add(new Vector3(Random.Range(128, 255), Random.Range(128, 255), Random.Range(128, 255)));
+        //    walkerColors.Add(new Vector3(10, 10, 10));
+        //    walkerAlive.Add(true);
+        //    walkerNames.Add(walker.GetName());
+        //}
+
         //walkers.Add(new Example());
         //walkerColors.Add(new Vector3(0, 255, 0));
         //walkers.Add(new SamKar());

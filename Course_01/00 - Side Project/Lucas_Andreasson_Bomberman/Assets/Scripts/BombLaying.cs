@@ -16,7 +16,7 @@ public class BombLaying : MonoBehaviour
     private UIManager uIManager;
     private int playerNum;
     private bool canPutDown = true;
-    private float bombAmmo;
+    private int bombAmmo;
     private Vector3 spawnPos;
 
     private float timer;
@@ -31,6 +31,11 @@ public class BombLaying : MonoBehaviour
         lastSize = explosionSize;
     }
 
+    public int GetBombAmmo()
+    {
+        return bombAmmo;
+    }
+    
     public void changeBombAmmo(bool willAdd = true)
     {
         if (willAdd)
@@ -79,26 +84,31 @@ public class BombLaying : MonoBehaviour
             if (Input.GetButtonDown(pManager.GetInput(PlayerManager.PlayerInput.Fire, playerNum)) && bombAmmo > 0 && canPutDown)
             {
                 timer = 0;
-                bombAmmo--;
-
-                pManager.SetInvulerability(false);
-
-                int layerMask = 1 << 6;
-
-                RaycastHit hit;
-
-                if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out hit, Mathf.Infinity, layerMask))
-                {
-                    spawnPos = new Vector3(hit.transform.position.x, hit.transform.position.y + 1, hit.transform.position.z);
-                }
-                GameObject playerBomb;
-
-                playerBomb = Instantiate(bomb, spawnPos, bomb.transform.rotation);
-                playerBomb.GetComponent<BombManager>().size = explosionSize;
-                playerBomb.GetComponent<BombManager>().SetPlayerGameobject(gameObject, playerNum);
+                PutDownBomb();
                 //Destroy(playerBomb, 5);
             }
         }
+    }
+
+    public void PutDownBomb()
+    {
+        bombAmmo--;
+
+        pManager.SetInvulerability(false);
+
+        int layerMask = 1 << 6;
+
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out hit, Mathf.Infinity, layerMask))
+        {
+            spawnPos = new Vector3(hit.transform.position.x, hit.transform.position.y + 1, hit.transform.position.z);
+        }
+        GameObject playerBomb;
+
+        playerBomb = Instantiate(bomb, spawnPos, bomb.transform.rotation);
+        playerBomb.GetComponent<BombManager>().size = explosionSize;
+        playerBomb.GetComponent<BombManager>().SetPlayerGameobject(gameObject, playerNum);
     }
 
     private void OnTriggerStay(Collider other)

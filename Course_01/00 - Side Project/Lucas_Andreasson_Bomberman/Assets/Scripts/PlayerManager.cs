@@ -113,6 +113,8 @@ public class PlayerManager : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log("hit: " + other.gameObject.name);
+
         if (other.tag == "Explosion" && !invulnerable)
         {
             SetInvulerability(true);

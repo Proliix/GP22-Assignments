@@ -46,6 +46,10 @@ public class PowerUps : MonoBehaviour
         Destroy(gameObject, 10);
     }
 
+    public PowerupType GetPowerUpType()
+    {
+        return powerupType;
+    }
 
     private void OnTriggerEnter(Collider other)
     {

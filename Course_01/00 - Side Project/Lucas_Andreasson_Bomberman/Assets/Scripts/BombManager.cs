@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class BombManager : MonoBehaviour
 {
@@ -129,7 +130,8 @@ public class BombManager : MonoBehaviour
                 bombModel.transform.localScale = Vector3.zero;
                 bombModel.GetComponent<Animator>().enabled = false;
                 bombModel.GetComponent<MeshRenderer>().enabled = false;
-                if(playerNum >= 0)
+                GetComponent<NavMeshObstacle>().enabled = false;
+                if (playerNum >= 0)
                 player.GetComponent<BombLaying>().changeBombAmmo();
             }
 
@@ -258,6 +260,7 @@ public class BombManager : MonoBehaviour
         if (playerInTrigger <= 0)
         {
             GetComponent<BoxCollider>().isTrigger = false;
+            GetComponent<NavMeshObstacle>().enabled = true;
         }
 
     }
