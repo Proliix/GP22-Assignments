@@ -21,6 +21,7 @@ class LucAnd : IRandomWalker
     char[] cameraNameArr;
     int cameraIndex;
     int[] cameraNameLength;
+    float timerToSing = 0;
 
     bool hasScaleFactor = false;
     float scaleFactor = 0;
@@ -76,19 +77,19 @@ class LucAnd : IRandomWalker
         cameraNameLength = new int[25];
         cameraNameArr = cameraName.ToCharArray();
 
-        Camera.main.gameObject.name = "";
-        for (int i = 0; i < cameraNameLength.Length; i++)
-        {
-            cameraNameLength[i] = cameraIndex;
-            if (cameraIndex < cameraNameArr.Length)
-                cameraIndex++;
-            else
-                cameraIndex = 0;
+        //Camera.main.gameObject.name = "";
+        //for (int i = 0; i < cameraNameLength.Length; i++)
+        //{
+        //    cameraNameLength[i] = cameraIndex;
+        //    if (cameraIndex < cameraNameArr.Length)
+        //        cameraIndex++;
+        //    else
+        //        cameraIndex = 0;
 
-            Camera.main.gameObject.name += cameraNameArr[cameraNameLength[i]];
-        }
+        //    Camera.main.gameObject.name += cameraNameArr[cameraNameLength[i]];
+        //}
 
-        Debug.Log("W: " + playAreaHeight + "| h: " + playAreaHeight);
+        //Debug.Log("W: " + playAreaHeight + "| h: " + playAreaHeight);
 
         screenSize = new Vector2(playAreaWidth, playAreaHeight);
         //Random.InitState(10);
@@ -175,69 +176,6 @@ class LucAnd : IRandomWalker
         }
         else return false;
     }
-    //float GetMoveScore(Vector2 dir)
-    //{
-    //    Vector2 newPos = walkerPos + dir;
-    //    float newMoveScore = 0;
-    //    float addToScore = 0;
-
-
-    //    for (int i = 0; i < 4; i++)
-    //    {
-    //        addToScore = 0;
-
-    //        if (NewPosInBounds(dir, newPos))
-    //        {
-    //            for (int x = 0; x < positions.Count; x++)
-    //            {
-    //                if (newPos + moveDir[i] == positions[x])
-    //                {
-    //                    addToScore = lowScore;
-    //                }
-    //                else if (addToScore != lowScore)
-    //                {
-    //                    addToScore = 20;
-    //                }
-
-
-    //            }
-
-    //            if (hasScaleFactor)
-    //            {
-    //                for (int z = 0; z < dangerPos.Count; z++)
-    //                {
-    //                    if (Vector2.Distance(dangerPos[z], newPos + moveDir[i]) < scaleFactor)
-    //                    {
-    //                        addToScore -= 5;
-    //                        // Debug.Log("Too close to player");
-    //                    }
-    //                }
-    //            }
-
-    //            newMoveScore += addToScore;
-    //        }
-    //        else
-    //        {
-    //            newMoveScore -= lowScore;
-    //        }
-    //    }
-
-    //    addToScore = 0;
-    //    for (int i = 0; i < positions.Count; i++)
-    //    {
-    //        if (newPos == positions[i])
-    //        {
-    //            addToScore = lowScore;
-    //        }
-    //        else if (addToScore != lowScore)
-    //        {
-    //            addToScore = 10;
-    //        }
-    //    }
-
-    //    return newMoveScore;
-    //}
-
 
     float GetMoveScore(Vector2 dir)
     {
@@ -271,7 +209,7 @@ class LucAnd : IRandomWalker
                     {
                         if (Vector2.Distance(dangerPos[z], newPos + moveDir[i]) < scaleFactor)
                         {
-                            newMoveScore -= 5;
+                            newMoveScore -= 15;
                             // Debug.Log("Too close to player");
                         }
                     }
@@ -371,22 +309,22 @@ class LucAnd : IRandomWalker
             switch (lowestIndex)
             {
                 case 0:
-                    Debug.Log("Top right");
+                    //Debug.Log("Top right");
                     moveScore[0] += 1;
                     moveScore[1] += 1;
                     break;
                 case 1:
-                    Debug.Log("Bot right");
+                    //Debug.Log("Bot right");
                     moveScore[2] += 1;
                     moveScore[1] += 1;
                     break;
                 case 2:
-                    Debug.Log("Top Left");
+                    //Debug.Log("Top Left");
                     moveScore[0] += 1;
                     moveScore[3] += 1;
                     break;
                 case 3:
-                    Debug.Log("Bot Left");
+                    //Debug.Log("Bot Left");
                     moveScore[2] += 1;
                     moveScore[3] += 1;
                     break;
@@ -403,35 +341,43 @@ class LucAnd : IRandomWalker
         Random.InitState((int)System.DateTime.Now.Ticks);
 
         iterations++;
-        if (Camera.main != null)
+
+        if (timerToSing > 18)
         {
-            if (iterations % 5 == 0)
+            if (Camera.main != null)
             {
-                Camera.main.gameObject.name = "";
-                for (int i = 0; i < cameraNameLength.Length; i++)
+                if (iterations % 12 == 0)
                 {
-
-                    if (i != cameraNameLength.Length - 1)
+                    Camera.main.gameObject.name = "";
+                    for (int i = 0; i < cameraNameLength.Length; i++)
                     {
-                        cameraNameLength[i] = cameraNameLength[i + 1];
-                    }
-                    else
-                    {
-                        cameraNameLength[i] = cameraIndex;
 
-                        if (cameraIndex < cameraNameArr.Length - 1)
-                            cameraIndex++;
+                        if (i != cameraNameLength.Length - 1)
+                        {
+                            cameraNameLength[i] = cameraNameLength[i + 1];
+                        }
                         else
-                            cameraIndex = 0;
+                        {
+                            cameraNameLength[i] = cameraIndex;
 
+                            if (cameraIndex < cameraNameArr.Length - 1)
+                                cameraIndex++;
+                            else
+                                cameraIndex = 0;
+
+                        }
+                        //if (cameraIndex > cameraNameArr.Length - 5)
+                        //    Debug.Log(cameraIndex + " | " + cameraNameArr.Length);
+
+                        Camera.main.gameObject.name += cameraNameArr[cameraNameLength[i]];
                     }
-                    if (cameraIndex > cameraNameArr.Length - 5)
-                        Debug.Log(cameraIndex + " | " + cameraNameArr.Length);
-                    Camera.main.gameObject.name += cameraNameArr[cameraNameLength[i]];
                 }
             }
         }
-
+        else
+        {
+            timerToSing += Time.deltaTime;
+        }
 
 
         if (!hasHolder && iterations > 2)
@@ -617,7 +563,7 @@ class LucAnd : IRandomWalker
                 {
                     positions[i] = Vector2.zero * -10;
                 }
-                Debug.Log("Cleared");
+                //Debug.Log("Cleared");
                 stuckFix = 0;
             }
         }
