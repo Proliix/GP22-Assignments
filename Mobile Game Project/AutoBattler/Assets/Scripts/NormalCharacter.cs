@@ -7,7 +7,6 @@ public class NormalCharacter : BaseCharacter
     new void Start()
     {
         base.Start();
-        GetComponent<SpriteRenderer>().sprite = baseStats.CharacterSprite;
     }
 
 }
