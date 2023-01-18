@@ -5,7 +5,8 @@ using TMPro;
 
 public class HitNumbers : MonoBehaviour
 {
-    public static HitNumbers Instance;
+    private static HitNumbers _instance;
+    public static HitNumbers Instance { get { return _instance; } }
     [SerializeField] int startSize = 5;
     [SerializeField] GameObject textObjPrefab;
     [SerializeField] GameObject Canvas;
@@ -13,15 +14,16 @@ public class HitNumbers : MonoBehaviour
     List<GameObject> textObjects;
     private void Awake()
     {
-        if (Instance == null)
+        if (_instance == null)
         {
-            Instance = this;
+            _instance = this;
             textObjects = new List<GameObject>();
             StartCoroutine(InitializeObjectPool(startSize));
         }
         else
             Destroy(gameObject);
 
+        DontDestroyOnLoad(gameObject);
     }
 
     IEnumerator InitializeObjectPool(int amount)

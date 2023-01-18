@@ -9,15 +9,16 @@ public class StatDisplayManager : MonoBehaviour
 
     [SerializeField] GameObject statPrefab;
 
-    public static StatDisplayManager Instance;
+    private static StatDisplayManager _instance;
+    public static StatDisplayManager Instance { get { return _instance; } }
 
     GameObject[] objectPool = new GameObject[POOL_SIZE];
 
-    private void Start()
+    private void Awake()
     {
-        if (Instance == null)
+        if (_instance == null)
         {
-            Instance = this;
+            _instance = this;
             for (int i = 0; i < objectPool.Length; i++)
             {
                 objectPool[i] = Instantiate(statPrefab, gameObject.transform);
@@ -28,26 +29,59 @@ public class StatDisplayManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        DontDestroyOnLoad(gameObject);
     }
 
-    public GameObject GetStatDisplayer(Transform parent, Vector3 localPos, ref TextMeshPro leftText, ref TextMeshPro rightText, bool flipX = false)
+    public GameObject GetStatDisplayer(Transform parent, Vector3 localPos, ref TextMeshPro leftText, ref TextMeshPro rightText, ref int index, bool flipX = false)
     {
         GameObject returnObj = null;
 
         for (int i = 0; i < objectPool.Length; i++)
         {
-            if (!objectPool[i].activeSelf)
+            if (objectPool[i] != null)
             {
-                returnObj = objectPool[i];
-                returnObj.SetActive(true);
-                returnObj.transform.SetParent(parent);
-                returnObj.transform.localPosition = localPos;
-                leftText = returnObj.transform.GetChild(0).GetComponent<TextMeshPro>();
-                rightText = returnObj.transform.GetChild(1).GetComponent<TextMeshPro>();
-                break;
+                if (objectPool[i].transform.parent == transform)
+                {
+                    returnObj = objectPool[i];
+                    leftText = returnObj.transform.GetChild(0).GetComponent<TextMeshPro>();
+                    rightText = returnObj.transform.GetChild(1).GetComponent<TextMeshPro>();
+                    returnObj.SetActive(true);
+                    returnObj.transform.SetParent(parent);
+                    returnObj.transform.localPosition = localPos;
+                    index = i;
+                    break;
+                }
+            }
+            else
+            {
+                objectPool[i] = Instantiate(statPrefab, gameObject.transform);
+                objectPool[i].SetActive(false);
+                i--;
             }
         }
-        returnObj.GetComponent<SpriteRenderer>().flipX = flipX;
+        if (returnObj != null)
+            returnObj.GetComponent<SpriteRenderer>().flipX = flipX;
+
+        if (leftText == null || rightText == null)
+        {
+            leftText = returnObj.transform.GetChild(0).GetComponent<TextMeshPro>();
+            rightText = returnObj.transform.GetChild(1).GetComponent<TextMeshPro>();
+        }
         return returnObj;
+    }
+
+    public void ResetAll()
+    {
+        for (int i = 0; i < objectPool.Length; i++)
+        {
+            objectPool[i].transform.parent = transform;
+            objectPool[i].SetActive(false);
+        }
+    }
+
+    public void ResetDisplay(int displayIndex)
+    {
+        objectPool[displayIndex].transform.parent = transform;
+        objectPool[displayIndex].SetActive(false);
     }
 }

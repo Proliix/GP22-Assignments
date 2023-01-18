@@ -10,8 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e1c8997e14d48341b1d3cf3fd9ae3d2, type: 3}
-  m_Name: NormalCharacter
+  m_Name: Skeleton
   m_EditorClassIdentifier: 
-  Damage: 1
-  Health: 5
-  CharacterSprite: {fileID: 21300000, guid: ddc01011362b52244bb450ecd56988fe, type: 3}
+  Index: 2
+  Damage: 2
+  Health: 4
+  CharacterSprite: {fileID: 21300000, guid: f971237a781657b49935e971b7ceff16, type: 3}
