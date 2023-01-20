@@ -137,13 +137,13 @@ public class TouchController : MonoBehaviour
                             switch (state)
                             {
                                 case TouchState.Buff:
-                                    OverSelectableItem(hit, "Character");
+                                    CheckSelectableItem(hit, "Character");
                                     break;
                                 case TouchState.Character:
-                                    OverSelectableItem(hit, "Character");
+                                    CheckSelectableItem(hit, "Character");
                                     break;
                                 case TouchState.ShopCharacter:
-                                    OverSelectableItem(hit, "Character");
+                                    CheckSelectableItem(hit, "Character");
                                     break;
                                 default:
                                     break;
@@ -170,7 +170,7 @@ public class TouchController : MonoBehaviour
         }
     }
 
-    private void OverSelectableItem(RaycastHit2D hit, string checkTag)
+    private void CheckSelectableItem(RaycastHit2D hit, string checkTag)
     {
         if (hit.collider.CompareTag(checkTag))
         {
