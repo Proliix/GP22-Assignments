@@ -6,7 +6,9 @@ public class TouchController : MonoBehaviour
 {
     public enum TouchState { Buff, Character, ShopCharacter, Nothing }
 
-    [SerializeField] float yPos = 2;
+    [SerializeField] float yPosBezierCurve = 2;
+    [SerializeField]
+    float switchScale = 1.25f;
     [SerializeField] GameObject arrow;
     float xPos = 0;
     LineRenderer line;
@@ -16,11 +18,13 @@ public class TouchController : MonoBehaviour
 
     Touch touch;
     TouchState state = TouchState.Nothing;
-    BuffController currentBuff;
+    Potion currentBuff;
     GameController gameController;
     ICharacter char1, char2;
     GameObject obj1, obj2;
+    Vector3 oldScale;
     bool hasReset = false;
+    bool usingDescription = false;
     private void Start()
     {
         gameController = GetComponent<GameController>();
@@ -46,20 +50,29 @@ public class TouchController : MonoBehaviour
                             StartLine(hit.transform.position);
 
                             state = TouchState.Buff;
-                            currentBuff = hit.collider.gameObject.GetComponent<BuffController>();
+                            currentBuff = hit.collider.gameObject.GetComponent<Potion>();
+                            obj1 = hit.collider.gameObject;
+                            StatDisplayManager.Instance.GetDescriptionObject(currentBuff.GetTitle(), currentBuff.GetDescription(), currentBuff.GetCost(), obj1.transform.position + (Vector3.up * 2));
+                            usingDescription = true;
+
                         }
                         if (hit.collider.CompareTag("Character"))
                         {
                             StartLine(hit.transform.position);
                             state = TouchState.Character;
+                            obj1 = hit.collider.gameObject;
                             char1 = hit.collider.GetComponent<ICharacter>();
+                            StatDisplayManager.Instance.GetDescriptionObject(char1.GetStats(), obj1.transform.position + (Vector3.up * 2));
+                            usingDescription = true;
                         }
                         if (hit.collider.CompareTag("ShopCharacter"))
                         {
                             StartLine(hit.transform.position);
                             state = TouchState.ShopCharacter;
-                            char1 = hit.collider.GetComponent<ICharacter>();
                             obj1 = hit.collider.gameObject;
+                            char1 = hit.collider.GetComponent<ICharacter>();
+                            StatDisplayManager.Instance.GetDescriptionObject(char1.GetStats(), obj1.transform.position + (Vector3.up * 2));
+                            usingDescription = true;
                         }
 
                     }
@@ -69,6 +82,8 @@ public class TouchController : MonoBehaviour
                     if (state != TouchState.Nothing)
                     {
 
+                        if (usingDescription)
+                            StatDisplayManager.Instance.ResetDescriptionObject();
 
                         RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(touch.position), Vector2.zero);
                         if (hit.collider != null)
@@ -106,7 +121,40 @@ public class TouchController : MonoBehaviour
                     if (!hasReset)
                     {
                         hasReset = true;
+                        usingDescription = false;
                         ResetObjs();
+                    }
+                }
+
+                if (touch.phase == TouchPhase.Moved)
+                {
+                    if (state != TouchState.Nothing)
+                    {
+                        RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(touch.position), Vector2.zero);
+
+                        if (hit.collider != null)
+                        {
+                            switch (state)
+                            {
+                                case TouchState.Buff:
+                                    OverSelectableItem(hit, "Character");
+                                    break;
+                                case TouchState.Character:
+                                    OverSelectableItem(hit, "Character");
+                                    break;
+                                case TouchState.ShopCharacter:
+                                    OverSelectableItem(hit, "Character");
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                        }
+                        else if (obj2 != null && oldScale != Vector3.zero)
+                        {
+                            obj2.transform.localScale = oldScale;
+                            obj2 = null;
+                        }
                     }
                 }
 
@@ -114,7 +162,7 @@ public class TouchController : MonoBehaviour
                 {
                     camPos = new Vector3(Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position).x, Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position).y, 0);
                     xPos = Mathf.Lerp(lineStartPos.x, camPos.x, 0.5f);
-                    DrawQuadraticBezierCurve(lineStartPos, new Vector3(xPos, lineStartPos.y + yPos, 0), camPos);
+                    DrawQuadraticBezierCurve(lineStartPos, new Vector3(xPos, lineStartPos.y + yPosBezierCurve, 0), camPos);
                     arrow.transform.position = camPos;
                     arrow.transform.up = line.GetPosition(199) - camPos;
                 }
@@ -122,6 +170,21 @@ public class TouchController : MonoBehaviour
         }
     }
 
+    private void OverSelectableItem(RaycastHit2D hit, string checkTag)
+    {
+        if (hit.collider.CompareTag(checkTag))
+        {
+            if (hit.collider.gameObject != obj1 && hit.collider.gameObject != obj2)
+            {
+                if (obj2 != null)
+                    obj2.transform.localScale = oldScale;
+
+                obj2 = hit.collider.gameObject;
+                oldScale = obj2.transform.localScale;
+                obj2.transform.localScale = Vector3.one * switchScale;
+            }
+        }
+    }
     private void StartLine(Vector3 startPos)
     {
         UpdateLineRenderer = true;
@@ -149,6 +212,15 @@ public class TouchController : MonoBehaviour
         UpdateLineRenderer = false;
         arrow.SetActive(false);
         state = TouchState.Nothing;
+
+        if (obj2 != null && oldScale != Vector3.zero)
+            obj2.transform.localScale = oldScale;
+
+        oldScale = Vector3.zero;
+        obj1 = null;
+        obj2 = null;
+        char1 = null;
+        char2 = null;
         currentBuff = null;
     }
 }

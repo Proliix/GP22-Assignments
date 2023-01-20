@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: Skeleton
   m_EditorClassIdentifier: 
   Index: 2
+  Name: Skeleton Wizard
+  Description: The wizard attacks the first enemy
+  Cost: 2
   Damage: 2
   Health: 4
   CharacterSprite: {fileID: 21300000, guid: f971237a781657b49935e971b7ceff16, type: 3}

@@ -7,6 +7,9 @@ public class CharacterStats : ScriptableObject
 {
     [HideInInspector]
     public int Index;
+    public string Name;
+    [TextArea(4,8)]
+    public string Description;
     public int Cost = 2;
     public int Damage;
     public int Health;

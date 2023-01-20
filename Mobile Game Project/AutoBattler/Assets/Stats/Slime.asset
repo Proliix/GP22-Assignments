@@ -12,6 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e1c8997e14d48341b1d3cf3fd9ae3d2, type: 3}
   m_Name: Slime
   m_EditorClassIdentifier: 
+  Index: 0
+  Name: Slime
+  Description: The slime attacks the first enemy
+  Cost: 2
   Damage: 1
   Health: 5
   CharacterSprite: {fileID: 21300000, guid: ddc01011362b52244bb450ecd56988fe, type: 3}
