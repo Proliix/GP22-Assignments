@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 
 public enum GameState { Shop, Duel, Intermission }
+
 public class GameController : MonoBehaviour
 {
 
@@ -20,8 +21,10 @@ public class GameController : MonoBehaviour
     [SerializeField] TextMeshProUGUI coinText;
     [SerializeField] List<GameObject> playerBoardShop;
     [SerializeField] List<GameObject> shopBoard;
+    [SerializeField] List<GameObject> playerHolderShop;
 
     [Header("Duel")]
+    [SerializeField] int health = 5;
     [SerializeField] GameObject duelHolder;
     [SerializeField] List<GameObject> playerBoard;
     [SerializeField] List<GameObject> enemyBoard;
@@ -38,6 +41,8 @@ public class GameController : MonoBehaviour
     GameState currentState, nextState;
     ICharacter[] playerCharacters;
     ICharacter[] enemyCharacters;
+
+    FireBaseManager fbm;
 
     ICharacter[] playerCharactersShop;
     ICharacter[] charactersShop;
@@ -62,12 +67,12 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
+        fbm = gameObject.GetComponent<FireBaseManager>();
+
         for (int i = 0; i < allCharacters.Length; i++)
         {
             allCharacters[i].Index = i;
         }
-
-
 
         winText.text = "";
         UpdateCoinText();
@@ -108,18 +113,18 @@ public class GameController : MonoBehaviour
         enemyCharacters = new ICharacter[enemyBoard.Count];
         for (int i = 0; i < playerBoard.Count; i++)
         {
-            if (playerBoard[i].GetComponent<ICharacter>() != null)
+            if (playerBoard[i].GetComponent<CharacterHolder>().GetCharacter() != null)
             {
-                playerCharacters[i] = playerBoard[i].GetComponent<ICharacter>();
+                playerCharacters[i] = playerBoard[i].GetComponent<CharacterHolder>().GetCharacter();
             }
             else
                 Debug.LogError("<color=red>ERROR:</color> No ICharacter on playerBoard: " + playerBoard[i].name + " in slot " + i);
         }
         for (int i = 0; i < enemyBoard.Count; i++)
         {
-            if (enemyBoard[i].GetComponent<ICharacter>() != null)
+            if (enemyBoard[i].GetComponent<CharacterHolder>().GetCharacter() != null)
             {
-                enemyCharacters[i] = enemyBoard[i].GetComponent<ICharacter>();
+                enemyCharacters[i] = enemyBoard[i].GetComponent<CharacterHolder>().GetCharacter();
             }
             else
                 Debug.LogError("<color=red>ERROR:</color> No ICharacter on enemyBoard: " + enemyBoard[i].name + " in slot " + i);
@@ -152,6 +157,15 @@ public class GameController : MonoBehaviour
             InitializeTeamFromTeamKey(debugString, playerBoard.ToArray(), playerCharacters);
         }
 
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            fbm.SaveTeam(1, 1, GetTeamKey(playerCharacters));
+        }
+
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            fbm.LoadTeam(1, 1);
+        }
 
         if (nextState == currentState)
         {
@@ -271,13 +285,11 @@ public class GameController : MonoBehaviour
     {
         for (int i = 0; i < playerBoard.Count; i++)
         {
-            playerBoard[i].SetActive(true);
             playerCharacters[i].ResetCharacter();
         }
 
         for (int i = 0; i < enemyBoard.Count; i++)
         {
-            enemyBoard[i].SetActive(true);
             enemyCharacters[i].ResetCharacter();
         }
     }
@@ -297,6 +309,7 @@ public class GameController : MonoBehaviour
         duelHolder.SetActive(true);
         LoadData();
         InitializeTeamFromTeamKey(currentTeamKey, playerBoard.ToArray(), playerCharacters);
+        CheckDeaths();
     }
 
     void ResetShop()
@@ -325,12 +338,12 @@ public class GameController : MonoBehaviour
         playerCharactersShop = new ICharacter[playerBoardShop.Count];
         for (int i = 0; i < playerBoardShop.Count; i++)
         {
-            playerCharactersShop[i] = playerBoardShop[i].GetComponent<ICharacter>();
+            playerCharactersShop[i] = playerBoardShop[i].GetComponent<CharacterHolder>().GetCharacter();
         }
         charactersShop = new ICharacter[shopBoard.Count];
         for (int i = 0; i < shopBoard.Count; i++)
         {
-            charactersShop[i] = shopBoard[i].GetComponent<ICharacter>();
+            charactersShop[i] = shopBoard[i].GetComponent<CharacterHolder>().GetCharacter();
         }
         if (round > 0)
             ResetShop();
@@ -375,11 +388,13 @@ public class GameController : MonoBehaviour
 
         for (int i = 0; i < shopBoard.Count; i++)
         {
-            shopBoard[i].SetActive(true);
+            shopBoard[i].GetComponent<CharacterHolder>().SetCharacterObjActive(true);
+            shopBoard[i].GetComponent<CharacterHolder>().hasCharacter = true;
         }
         for (int i = 0; i < charactersShop.Length; i++)
         {
             charactersShop[i].ChangeStats(allCharacters[Random.Range(0, allCharacters.Length)]);
+            charactersShop[i].ChangeIsActive(true);
         }
 
     }
@@ -420,6 +435,22 @@ public class GameController : MonoBehaviour
             playerIndex = (playerIndex + 1) >= playerCharacters.Length ? playerCharacters.Length - 1 : playerIndex + 1;
         if (enemyCharacters[enemyIndex].GetIsDead())
             enemyIndex = (enemyIndex + 1) >= enemyCharacters.Length ? enemyCharacters.Length - 1 : enemyIndex + 1;
+
+        if (!playerCharacters[playerIndex].GetIsActive())
+        {
+            for (int i = playerIndex; i < playerCharacters.Length; i++)
+            {
+                if (playerCharacters[i].GetIsActive())
+                {
+                    playerIndex = i;
+                    break;
+                }
+                else
+                {
+                    playerCharacters[i].Death();
+                }
+            }
+        }
 
         playerDead = playerCharacters[playerCharacters.Length - 1].GetIsDead();
         enemyDead = enemyCharacters[enemyCharacters.Length - 1].GetIsDead();
@@ -495,8 +526,8 @@ public class GameController : MonoBehaviour
             if (numOfDividers == 3)
             {
                 numOfDividers = 0;
+                board[currentIndex].GetComponent<CharacterHolder>().SetCharacterObjActive(true);
                 characters[currentIndex].InitializeFromKey(charKey);
-                board[currentIndex].SetActive(true);
                 charKey = "";
                 currentIndex++;
             }
@@ -513,20 +544,19 @@ public class GameController : MonoBehaviour
                 for (int i = currentIndex; i < characters.Length; i++)
                 {
                     characters[i].ChangeStats(allCharacters[Random.Range(0, allCharacters.Length)]);
-                    board[i].SetActive(true);
+                    board[i].GetComponent<CharacterHolder>().SetCharacterObjActive(true);
                 }
             }
             else
             {
                 for (int i = currentIndex; i < board.Length; i++)
                 {
-                    board[i].SetActive(false);
+                    board[i].GetComponent<CharacterHolder>().SetCharacterObjActive(false);
                 }
             }
         }
 
     }
-
 
     void ReloadScene()
     {

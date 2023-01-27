@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "749819874708",
+    "firebase_url": "https://autobattler2023-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "autobattler2023",
+    "storage_bucket": "autobattler2023.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:749819874708:android:3b2c210b6d9c600f1c1381",
+        "android_client_info": {
+          "package_name": "com.Prolix.AutoBattler"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "749819874708-naov6kqcbhjmcj97engu3bm89prvrve0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCr_rh5o6-d16Yzy9orm5r0kixiC02jJ0U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "749819874708-naov6kqcbhjmcj97engu3bm89prvrve0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

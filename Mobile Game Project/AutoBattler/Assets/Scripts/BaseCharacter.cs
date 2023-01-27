@@ -15,15 +15,18 @@ public class BaseCharacter : MonoBehaviour, ICharacter
     [SerializeField] TextMeshPro damageText;
     [SerializeField] string key;
 
+    bool isActive = false;
     bool isDead = false;
     int currentHealth = 0;
     int currentDamage = 0;
 
     GameController gameController;
+    SpriteRenderer sr;
     Animator anim;
     int displayIndex = -1;
     protected void Start()
     {
+        sr = GetComponent<SpriteRenderer>();
         gameController = GameObject.FindWithTag("GameController").GetComponent<GameController>();
         UpdateCharacter();
         //if (hpText == null)
@@ -58,9 +61,12 @@ public class BaseCharacter : MonoBehaviour, ICharacter
 
     public void Attack(ICharacter character)
     {
-        Debug.Log("Deals " + currentDamage + " damage!");
-        character.TakeDamage(currentDamage);
-        anim.SetTrigger("Attack");
+        if (gameObject.activeSelf)
+        {
+            Debug.Log("Deals " + currentDamage + " damage!");
+            character.TakeDamage(currentDamage);
+            anim.SetTrigger("Attack");
+        }
     }
 
     public void AttackEffect()
@@ -149,7 +155,7 @@ public class BaseCharacter : MonoBehaviour, ICharacter
     {
         string charKey = "";
 
-        charKey += baseStats.Index;
+        charKey += isActive ? baseStats.Index : -1;
         charKey += "|";
         charKey += extraHealth;
         charKey += "|";
@@ -157,6 +163,7 @@ public class BaseCharacter : MonoBehaviour, ICharacter
 
         return charKey;
     }
+
 
     public void InitializeFromKey(string key)
     {
@@ -177,6 +184,9 @@ public class BaseCharacter : MonoBehaviour, ICharacter
             }
         }
         index = int.Parse(indexStr);
+
+        ChangeIsActive(index >= 0 ? true : false);
+
         int health = 0;
         string healthStr = "";
         for (int i = dividerIndex + 1; i < keyarr.Length; i++)
@@ -206,10 +216,13 @@ public class BaseCharacter : MonoBehaviour, ICharacter
             gameController = GameObject.FindWithTag("GameController").GetComponent<GameController>();
         }
 
-        baseStats = gameController.GetStatsFromIndex(index);
-        extraHealth = health;
-        extraDamage = damage;
-        UpdateCharacter();
+        if (index >= 0)
+        {
+            baseStats = gameController.GetStatsFromIndex(index);
+            extraHealth = health;
+            extraDamage = damage;
+            UpdateCharacter();
+        }
     }
 
     public void FindStatDisplayer()
@@ -227,6 +240,7 @@ public class BaseCharacter : MonoBehaviour, ICharacter
 
     public void ResetCharacter()
     {
+        gameObject.SetActive(true);
         currentHealth = baseStats.Health + extraHealth;
         currentDamage = baseStats.Damage + extraDamage;
         isDead = false;
@@ -243,5 +257,16 @@ public class BaseCharacter : MonoBehaviour, ICharacter
     public int GetCost()
     {
         return baseStats.Cost;
+    }
+
+    public bool GetIsActive()
+    {
+        return isActive;
+    }
+
+    public void ChangeIsActive(bool value)
+    {
+        gameObject.SetActive(value);
+        isActive = value;
     }
 }

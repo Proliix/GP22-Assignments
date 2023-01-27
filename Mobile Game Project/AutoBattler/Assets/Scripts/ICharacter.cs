@@ -18,6 +18,8 @@ public interface ICharacter
     public void ResetCharacter();
     public int GetHealth();
     public bool GetIsDead();
+    public bool GetIsActive();
+    public void ChangeIsActive(bool value);
     public void InitializeFromKey(string key);
     public string GetCharacterKey();
     public void FindStatDisplayer();

@@ -61,18 +61,21 @@ public class TouchController : MonoBehaviour
                             StartLine(hit.transform.position);
                             state = TouchState.Character;
                             obj1 = hit.collider.gameObject;
-                            char1 = hit.collider.GetComponent<ICharacter>();
+                            char1 = hit.collider.GetComponent<CharacterHolder>().GetCharacter();
                             StatDisplayManager.Instance.GetDescriptionObject(char1.GetStats(), obj1.transform.position + (Vector3.up * 2));
                             usingDescription = true;
                         }
                         if (hit.collider.CompareTag("ShopCharacter"))
                         {
-                            StartLine(hit.transform.position);
-                            state = TouchState.ShopCharacter;
-                            obj1 = hit.collider.gameObject;
-                            char1 = hit.collider.GetComponent<ICharacter>();
-                            StatDisplayManager.Instance.GetDescriptionObject(char1.GetStats(), obj1.transform.position + (Vector3.up * 2));
-                            usingDescription = true;
+                            if (hit.collider.GetComponent<CharacterHolder>().hasCharacter)
+                            {
+                                StartLine(hit.transform.position);
+                                state = TouchState.ShopCharacter;
+                                obj1 = hit.collider.gameObject;
+                                char1 = hit.collider.GetComponent<CharacterHolder>().GetCharacter();
+                                StatDisplayManager.Instance.GetDescriptionObject(char1.GetStats(), obj1.transform.position + (Vector3.up * 2));
+                                usingDescription = true;
+                            }
                         }
 
                     }
@@ -94,20 +97,22 @@ public class TouchController : MonoBehaviour
                                 if (state == TouchState.Buff)
                                 {
                                     if (gameController.BuyObject(currentBuff.GetCost()))
-                                        currentBuff.UpdateCharacter(hit.collider.gameObject.GetComponent<ICharacter>());
+                                        currentBuff.UpdateCharacter(hit.collider.gameObject.GetComponent<CharacterHolder>().GetCharacter());
                                 }
                                 else if (state == TouchState.Character)
                                 {
-                                    char2 = hit.collider.GetComponent<ICharacter>();
+                                    char2 = hit.collider.GetComponent<CharacterHolder>().GetCharacter();
                                     gameController.SwapKeys(char1, char2);
                                 }
                                 else if (state == TouchState.ShopCharacter)
                                 {
-                                    char2 = hit.collider.GetComponent<ICharacter>();
+                                    char2 = hit.collider.GetComponent<CharacterHolder>().GetCharacter();
                                     if (gameController.BuyObject(char2.GetCost()))
                                     {
+                                        char2.ChangeIsActive(true);
                                         char2.InitializeFromKey(char1.GetCharacterKey());
-                                        obj1.SetActive(false);
+                                        obj1.GetComponent<CharacterHolder>().SetCharacterObjActive(false);
+                                        obj1.GetComponent<CharacterHolder>().hasCharacter = false;
                                     }
                                 }
 
