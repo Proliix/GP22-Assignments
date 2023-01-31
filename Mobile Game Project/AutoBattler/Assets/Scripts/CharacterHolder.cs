@@ -14,12 +14,6 @@ public class CharacterHolder : MonoBehaviour
     {
         character = characterObj.GetComponent<ICharacter>();
     }
-
-    public void ChangeCharacterState(bool State)
-    {
-        hasCharacter = State;
-    }
-
     public GameObject GetCharacterObj()
     {
         return characterObj;
@@ -28,6 +22,7 @@ public class CharacterHolder : MonoBehaviour
     public void SetCharacterObjActive(bool value)
     {
         characterObj.SetActive(value);
+        hasCharacter = value;
     }
 
     public ICharacter GetCharacter()

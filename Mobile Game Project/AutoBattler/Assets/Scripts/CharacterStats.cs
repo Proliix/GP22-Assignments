@@ -13,5 +13,8 @@ public class CharacterStats : ScriptableObject
     public int Cost = 2;
     public int Damage;
     public int Health;
-    public Sprite CharacterSprite;
+    public Sprite CharacterSpriteLevel1;
+    public Sprite CharacterSpriteLevel2;
+    public Sprite CharacterSpriteLevel3;
+    public CharacterType Type = CharacterType.Normal;
 }

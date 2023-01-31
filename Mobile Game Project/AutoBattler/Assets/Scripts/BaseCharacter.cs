@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
+public enum CharacterType { Normal, Splitter }
+
 [RequireComponent(typeof(Animator))]
 public class BaseCharacter : MonoBehaviour, ICharacter
 {
@@ -19,15 +21,21 @@ public class BaseCharacter : MonoBehaviour, ICharacter
     bool isDead = false;
     int currentHealth = 0;
     int currentDamage = 0;
+    int level = 0;
 
+    GameObject currentStatDisplayer;
+
+    CharacterHolder holder;
     GameController gameController;
     SpriteRenderer sr;
     Animator anim;
+    CharacterType characterType = CharacterType.Normal;
     int displayIndex = -1;
     protected void Start()
     {
         sr = GetComponent<SpriteRenderer>();
         gameController = GameObject.FindWithTag("GameController").GetComponent<GameController>();
+        holder ??= transform.parent.GetComponent<CharacterHolder>();
         UpdateCharacter();
         //if (hpText == null)
         //    StartCoroutine(FindStatDisplayer());
@@ -36,7 +44,7 @@ public class BaseCharacter : MonoBehaviour, ICharacter
     public void UpdateCharacter()
     {
         anim = gameObject.GetComponent<Animator>();
-        GetComponent<SpriteRenderer>().sprite = baseStats.CharacterSprite;
+        GetComponent<SpriteRenderer>().sprite = baseStats.CharacterSpriteLevel1;
         UpdateStats();
 
     }
@@ -61,7 +69,7 @@ public class BaseCharacter : MonoBehaviour, ICharacter
 
     public void Attack(ICharacter character)
     {
-        if (gameObject.activeSelf)
+        if (character.GetIsActive() && isActive)
         {
             Debug.Log("Deals " + currentDamage + " damage!");
             character.TakeDamage(currentDamage);
@@ -76,11 +84,26 @@ public class BaseCharacter : MonoBehaviour, ICharacter
 
     public void Death()
     {
-        Debug.Log(gameObject.name + " IS DEAD");
-        isDead = true;
-        StatDisplayManager.Instance.ResetDisplay(displayIndex);
-        displayIndex = -1;
-        gameObject.SetActive(false);
+        switch (characterType)
+        {
+
+            case CharacterType.Splitter:
+                StatDisplayManager.Instance.ResetDisplay(displayIndex);
+                displayIndex = -1;
+                transform.localScale = Vector3.one * 0.75f;
+                FindStatDisplayer();
+                currentDamage = 1;
+                currentHealth = 1;
+                characterType = CharacterType.Normal;
+                UpdateDisplayer();
+                break;
+            default:
+                isDead = true;
+                StatDisplayManager.Instance.ResetDisplay(displayIndex);
+                displayIndex = -1;
+                gameObject.SetActive(false);
+                break;
+        }
     }
 
     public int GetHealth()
@@ -107,15 +130,15 @@ public class BaseCharacter : MonoBehaviour, ICharacter
             hpText.text = currentHealth.ToString();
         else
         {
-            Debug.Log("Is here");
-            StatDisplayManager.Instance?.GetStatDisplayer(transform, new Vector3(0, -1.5f, 0), ref hpText, ref damageText, ref displayIndex, false);
-            UpdateStats();
+            FindStatDisplayer();
         }
     }
 
     public bool GetIsDead()
     {
-        return isDead;
+        bool returnBool = isActive ? isDead : true;
+
+        return returnBool;
     }
 
     public bool CheckDead()
@@ -131,11 +154,7 @@ public class BaseCharacter : MonoBehaviour, ICharacter
     {
         currentHealth = baseStats.Health + extraHealth;
         currentDamage = baseStats.Damage + extraDamage;
-        if (hpText != null)
-        {
-            hpText.text = currentHealth.ToString();
-            damageText.text = currentDamage.ToString();
-        }
+        UpdateDisplayer();
         key = GetCharacterKey();
     }
 
@@ -147,7 +166,9 @@ public class BaseCharacter : MonoBehaviour, ICharacter
 
     public void ChangeStats(CharacterStats newStats)
     {
+        ChangeIsActive(true);
         baseStats = newStats;
+        characterType = baseStats.Type;
         UpdateCharacter();
     }
 
@@ -221,6 +242,7 @@ public class BaseCharacter : MonoBehaviour, ICharacter
             baseStats = gameController.GetStatsFromIndex(index);
             extraHealth = health;
             extraDamage = damage;
+            characterType = baseStats.Type;
             UpdateCharacter();
         }
     }
@@ -229,18 +251,20 @@ public class BaseCharacter : MonoBehaviour, ICharacter
     {
         if (displayIndex < 0)
         {
-            StatDisplayManager.Instance.GetStatDisplayer(transform, new Vector3(0, -1.5f, 0), ref hpText, ref damageText, ref displayIndex, false);
-            Debug.Log(hpText.gameObject.name);
+            currentStatDisplayer = StatDisplayManager.Instance.GetStatDisplayer(transform, new Vector3(0, -1.5f, 0), ref hpText, ref damageText, ref displayIndex, false);
             if (hpText == null)
                 Debug.Log("Is here");
         }
 
         UpdateStats();
+
     }
 
     public void ResetCharacter()
     {
         gameObject.SetActive(true);
+        characterType = baseStats.Type;
+        transform.localScale = Vector3.one;
         currentHealth = baseStats.Health + extraHealth;
         currentDamage = baseStats.Damage + extraDamage;
         isDead = false;
@@ -266,7 +290,31 @@ public class BaseCharacter : MonoBehaviour, ICharacter
 
     public void ChangeIsActive(bool value)
     {
+
+        if (holder != null)
+            holder.hasCharacter = value;
+        else if (holder = transform.parent.GetComponent<CharacterHolder>())
+            holder.hasCharacter = value;
+
+
         gameObject.SetActive(value);
         isActive = value;
+    }
+
+    void UpdateDisplayer()
+    {
+        if (hpText != null)
+        {
+            hpText.text = currentHealth.ToString();
+            damageText.text = currentDamage.ToString();
+        }
+    }
+
+    public void Upgrade()
+    {
+        level++;
+        extraDamage += baseStats.Damage;
+        extraHealth += baseStats.Health;
+        UpdateStats();
     }
 }

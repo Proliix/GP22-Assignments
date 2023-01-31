@@ -15,6 +15,7 @@ public class StatDisplayManager : MonoBehaviour
     TextMeshProUGUI title;
     TextMeshProUGUI description;
     TextMeshProUGUI cost;
+    Vector3 startScale;
 
     private static StatDisplayManager _instance;
     public static StatDisplayManager Instance { get { return _instance; } }
@@ -31,6 +32,7 @@ public class StatDisplayManager : MonoBehaviour
                 objectPool[i] = Instantiate(statPrefab, gameObject.transform);
                 objectPool[i].SetActive(false);
             }
+            startScale = statPrefab.transform.localScale;
             InitializeDescriptionObject();
         }
         else
@@ -108,6 +110,7 @@ public class StatDisplayManager : MonoBehaviour
                     returnObj.SetActive(true);
                     returnObj.transform.SetParent(parent);
                     returnObj.transform.localPosition = localPos;
+                    returnObj.transform.localScale = startScale;
                     index = i;
                     break;
                 }
@@ -146,5 +149,6 @@ public class StatDisplayManager : MonoBehaviour
     {
         objectPool[displayIndex].transform.parent = transform;
         objectPool[displayIndex].SetActive(false);
+        objectPool[displayIndex].transform.localScale = startScale;
     }
 }

@@ -25,4 +25,5 @@ public interface ICharacter
     public void FindStatDisplayer();
     public CharacterStats GetStats();
     public int GetCost();
+    public void Upgrade();
 }

@@ -58,12 +58,16 @@ public class TouchController : MonoBehaviour
                         }
                         if (hit.collider.CompareTag("Character"))
                         {
-                            StartLine(hit.transform.position);
-                            state = TouchState.Character;
-                            obj1 = hit.collider.gameObject;
-                            char1 = hit.collider.GetComponent<CharacterHolder>().GetCharacter();
-                            StatDisplayManager.Instance.GetDescriptionObject(char1.GetStats(), obj1.transform.position + (Vector3.up * 2));
-                            usingDescription = true;
+                            if (hit.collider.gameObject.GetComponent<CharacterHolder>().hasCharacter)
+                            {
+                                StartLine(hit.transform.position);
+                                state = TouchState.Character;
+                                obj1 = hit.collider.gameObject;
+                                char1 = hit.collider.GetComponent<CharacterHolder>().GetCharacter();
+                                if (char1.GetIsActive())
+                                    StatDisplayManager.Instance.GetDescriptionObject(char1.GetStats(), obj1.transform.position + (Vector3.up * 2));
+                                usingDescription = true;
+                            }
                         }
                         if (hit.collider.CompareTag("ShopCharacter"))
                         {
@@ -73,7 +77,8 @@ public class TouchController : MonoBehaviour
                                 state = TouchState.ShopCharacter;
                                 obj1 = hit.collider.gameObject;
                                 char1 = hit.collider.GetComponent<CharacterHolder>().GetCharacter();
-                                StatDisplayManager.Instance.GetDescriptionObject(char1.GetStats(), obj1.transform.position + (Vector3.up * 2));
+                                if (char1.GetIsActive())
+                                    StatDisplayManager.Instance.GetDescriptionObject(char1.GetStats(), obj1.transform.position + (Vector3.up * 2));
                                 usingDescription = true;
                             }
                         }
@@ -107,10 +112,16 @@ public class TouchController : MonoBehaviour
                                 else if (state == TouchState.ShopCharacter)
                                 {
                                     char2 = hit.collider.GetComponent<CharacterHolder>().GetCharacter();
-                                    if (gameController.BuyObject(char2.GetCost()))
+                                    if (gameController.BuyObject(char1.GetCost()))
                                     {
+                                        if (char2.GetStats().Index == char1.GetStats().Index && char2.GetIsActive())
+                                        {
+                                            char2.Upgrade();
+                                        }
+                                        else
+                                            char2.InitializeFromKey(char1.GetCharacterKey());
+
                                         char2.ChangeIsActive(true);
-                                        char2.InitializeFromKey(char1.GetCharacterKey());
                                         obj1.GetComponent<CharacterHolder>().SetCharacterObjActive(false);
                                         obj1.GetComponent<CharacterHolder>().hasCharacter = false;
                                     }

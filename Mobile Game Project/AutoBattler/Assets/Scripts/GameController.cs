@@ -13,6 +13,7 @@ public class GameController : MonoBehaviour
     [Header("General")]
     [SerializeField] private float attackCooldown = 0.5f;
     [SerializeField] CharacterStats[] allCharacters;
+    [SerializeField] TextMeshProUGUI roundText, healthText, winsText;
 
     [Header("Shop")]
     [SerializeField] int startCoins = 6;
@@ -58,6 +59,9 @@ public class GameController : MonoBehaviour
     bool loadingScene;
 
     int round = 0;
+    int wins = 0;
+    int lastActivePlayer;
+    int lastActiveEnemy;
     bool hasPlayedRound;
     bool hasStarted = false;
 
@@ -138,11 +142,7 @@ public class GameController : MonoBehaviour
             playerCharacters[i].FindStatDisplayer();
         }
 
-        for (int i = 0; i < enemyCharacters.Length; i++)
-        {
-            enemyCharacters[i].FindStatDisplayer();
-            enemyCharacters[i].ChangeStats(allCharacters[Random.Range(0, allCharacters.Length)]);
-        }
+        CreateNewEnemyTeam(round > 3 ? true : false);
     }
 
     void Update()
@@ -184,6 +184,24 @@ public class GameController : MonoBehaviour
                     break;
             }
         }
+    }
+
+    bool IsPlayerTeamEmpty()
+    {
+        for (int i = 0; i < playerCharacters.Length; i++)
+        {
+            if (playerCharacters[i].GetIsActive())
+                return false;
+        }
+        return true;
+    }
+
+
+    void UpdateText()
+    {
+        healthText.text = "x" + health;
+        winsText.text = "x" + wins;
+        roundText.text = "x" + round;
     }
 
     void PlayRound()
@@ -283,6 +301,8 @@ public class GameController : MonoBehaviour
     }
     private void ResetDuel()
     {
+        lastActiveEnemy = 0;
+        lastActivePlayer = 0;
         for (int i = 0; i < playerBoard.Count; i++)
         {
             playerCharacters[i].ResetCharacter();
@@ -293,11 +313,10 @@ public class GameController : MonoBehaviour
             enemyCharacters[i].ResetCharacter();
         }
     }
+
     void LoadDuel()
     {
         currentTeamKey = GetTeamKey(playerCharactersShop);
-        playerIndex = 0;
-        enemyIndex = 0;
         playerDead = false;
         enemyDead = false;
         winText.text = "";
@@ -309,6 +328,9 @@ public class GameController : MonoBehaviour
         duelHolder.SetActive(true);
         LoadData();
         InitializeTeamFromTeamKey(currentTeamKey, playerBoard.ToArray(), playerCharacters);
+        Debug.Log("Playerboard empty: " + IsPlayerTeamEmpty());
+        FindLastActiveCharacters();
+        FindStartIndex();
         CheckDeaths();
     }
 
@@ -332,6 +354,7 @@ public class GameController : MonoBehaviour
     {
         shopHolder.SetActive(true);
         duelHolder.SetActive(false);
+        UpdateText();
         StatDisplayManager.Instance?.ResetAll();
         coins = startCoins;
         UpdateCoinText();
@@ -361,12 +384,19 @@ public class GameController : MonoBehaviour
         {
             playerCharactersShop[i].FindStatDisplayer();
         }
+
         if (round > 0)
         {
             InitializeTeamFromTeamKey(currentTeamKey, playerBoardShop.ToArray(), playerCharactersShop);
             FadeController.Instance.FadeIn();
         }
-
+        else
+        {
+            for (int i = 0; i < playerCharactersShop.Length; i++)
+            {
+                playerCharactersShop[i].ChangeIsActive(false);
+            }
+        }
     }
 
     public void RefreshShop()
@@ -452,8 +482,24 @@ public class GameController : MonoBehaviour
             }
         }
 
-        playerDead = playerCharacters[playerCharacters.Length - 1].GetIsDead();
-        enemyDead = enemyCharacters[enemyCharacters.Length - 1].GetIsDead();
+        if (!enemyCharacters[enemyIndex].GetIsActive())
+        {
+            for (int i = enemyIndex; i < enemyCharacters.Length; i++)
+            {
+                if (enemyCharacters[i].GetIsActive())
+                {
+                    enemyIndex = i;
+                    break;
+                }
+                else
+                {
+                    enemyCharacters[i].Death();
+                }
+            }
+        }
+
+        playerDead = playerCharacters[lastActivePlayer].GetIsDead();
+        enemyDead = enemyCharacters[lastActiveEnemy].GetIsDead();
 
         if (playerDead || enemyDead)
         {
@@ -461,6 +507,11 @@ public class GameController : MonoBehaviour
             winText.text = playerDead == enemyDead ? "DRAW" : winText.text;
             hasStarted = false;
             round++;
+            if (playerDead && !enemyDead)
+                health--;
+            else
+                wins++;
+
             currentTeamKey = GetTeamKey(playerCharacters);
             ChangeGameState(GameState.Shop, 2f);
         }
@@ -493,17 +544,17 @@ public class GameController : MonoBehaviour
         return teamKey;
     }
     /// <summary>
-    /// Creates a key for only the active characters
+    /// Creates a teamkey with the active characters
     /// </summary>
-    /// <param name="characters">The characters that will gave their keys taken</param>
+    /// <param name="characters">The characters that will have their keys taken</param>
     /// <param name="board">The board of gameobjects that is needed to check if they are active or not</param>
-    /// <returns>Return the teamkey of active characters</returns>
+    /// <returns>The teamkey of active characters</returns>
     public string GetTeamKey(ICharacter[] characters, GameObject[] board)
     {
         string teamKey = "";
         for (int i = 0; i < characters.Length; i++)
         {
-            if (board[i].activeSelf == true)
+            if (board[i].GetComponent<CharacterHolder>().hasCharacter == true)
             {
                 teamKey += characters[i].GetCharacterKey();
                 teamKey += '|';
@@ -511,7 +562,6 @@ public class GameController : MonoBehaviour
         }
         return teamKey;
     }
-
     public void InitializeTeamFromTeamKey(string teamKey, GameObject[] board, ICharacter[] characters)
     {
         char[] teamArr = teamKey.ToCharArray();
@@ -558,10 +608,78 @@ public class GameController : MonoBehaviour
 
     }
 
+    void CreateNewEnemyTeam(bool scrambledPlayer)
+    {
+        if (scrambledPlayer)
+        {
+            InitializeTeamFromTeamKey(currentTeamKey, enemyBoard.ToArray(), enemyCharacters);
+
+            int r1, r2;
+
+            for (int i = 0; i < 5; i++)
+            {
+                r1 = Random.Range(0, enemyCharacters.Length);
+                r2 = Random.Range(1, enemyCharacters.Length);
+                if (r2 >= enemyCharacters.Length)
+                    r2 -= enemyCharacters.Length;
+
+                SwapKeys(enemyCharacters[r1], enemyCharacters[r2]);
+
+            }
+        }
+
+        for (int i = 0; i < enemyCharacters.Length; i++)
+        {
+            enemyCharacters[i].FindStatDisplayer();
+
+            if (!scrambledPlayer)
+                enemyCharacters[i].ChangeStats(allCharacters[Random.Range(0, allCharacters.Length)]);
+        }
+        FindStartIndex();
+    }
+
     void ReloadScene()
     {
         loadingScene = true;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    void FindStartIndex()
+    {
+        for (int i = 0; i < playerCharacters.Length; i++)
+        {
+            if (playerCharacters[i].GetIsActive())
+            {
+                playerIndex = i;
+                break;
+            }
+        }
+        for (int i = 0; i < enemyCharacters.Length; i++)
+        {
+            if (enemyCharacters[i].GetIsActive())
+            {
+                enemyIndex = i;
+                break;
+            }
+        }
+    }
+
+    void FindLastActiveCharacters()
+    {
+        for (int i = 0; i < enemyCharacters.Length; i++)
+        {
+            if (enemyCharacters[i].GetIsActive())
+            {
+                lastActiveEnemy = i;
+            }
+        }
+        for (int i = 0; i < playerCharacters.Length; i++)
+        {
+            if (playerCharacters[i].GetIsActive())
+            {
+                lastActivePlayer = i;
+            }
+        }
     }
 
     void Attacks()

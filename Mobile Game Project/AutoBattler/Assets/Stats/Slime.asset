@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Index: 0
   Name: Slime
-  Description: The slime attacks the first enemy
+  Description: When the Slime dies it becomes a weaker smaller version of itself.
   Cost: 2
   Damage: 1
   Health: 5
   CharacterSprite: {fileID: 21300000, guid: ddc01011362b52244bb450ecd56988fe, type: 3}
+  Type: 1
