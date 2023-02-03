@@ -18,5 +18,7 @@ MonoBehaviour:
   Cost: 2
   Damage: 1
   Health: 5
-  CharacterSprite: {fileID: 21300000, guid: ddc01011362b52244bb450ecd56988fe, type: 3}
+  CharacterSpriteLevel1: {fileID: 21300000, guid: ddc01011362b52244bb450ecd56988fe, type: 3}
+  CharacterSpriteLevel2: {fileID: 0}
+  CharacterSpriteLevel3: {fileID: 0}
   Type: 1

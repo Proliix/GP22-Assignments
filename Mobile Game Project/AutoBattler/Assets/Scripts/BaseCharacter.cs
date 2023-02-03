@@ -152,8 +152,10 @@ public class BaseCharacter : MonoBehaviour, ICharacter
 
     public void UpdateStats()
     {
-        currentHealth = baseStats.Health + extraHealth;
-        currentDamage = baseStats.Damage + extraDamage;
+        int statDamage = Mathf.CeilToInt((baseStats.Damage * level) / 2);
+        int statHealth = Mathf.CeilToInt((baseStats.Health * level) / 2);
+        currentHealth = baseStats.Health + level + extraHealth;
+        currentDamage = baseStats.Damage + level + extraDamage;
         UpdateDisplayer();
         key = GetCharacterKey();
     }
@@ -181,6 +183,8 @@ public class BaseCharacter : MonoBehaviour, ICharacter
         charKey += extraHealth;
         charKey += "|";
         charKey += extraDamage;
+        charKey += "|";
+        charKey += level;
 
         return charKey;
     }
@@ -227,11 +231,24 @@ public class BaseCharacter : MonoBehaviour, ICharacter
         int damage = 0;
         for (int i = dividerIndex + 1; i < keyarr.Length; i++)
         {
-            damageStr += keyarr[i];
+            if (keyarr[i] == '|')
+            {
+                dividerIndex = i;
+                break;
+            }
+            else
+            {
+                damageStr += keyarr[i];
+            }
         }
-
         damage = int.Parse(damageStr);
-
+        string levelStr = "";
+        int newlevel = 0;
+        for (int i = dividerIndex + 1; i < keyarr.Length; i++)
+        {
+            levelStr += keyarr[i];
+        }
+        newlevel = int.Parse(levelStr);
         if (gameController == null)
         {
             gameController = GameObject.FindWithTag("GameController").GetComponent<GameController>();
@@ -242,6 +259,7 @@ public class BaseCharacter : MonoBehaviour, ICharacter
             baseStats = gameController.GetStatsFromIndex(index);
             extraHealth = health;
             extraDamage = damage;
+            level = newlevel;
             characterType = baseStats.Type;
             UpdateCharacter();
         }
@@ -313,8 +331,6 @@ public class BaseCharacter : MonoBehaviour, ICharacter
     public void Upgrade()
     {
         level++;
-        extraDamage += baseStats.Damage;
-        extraHealth += baseStats.Health;
         UpdateStats();
     }
 }

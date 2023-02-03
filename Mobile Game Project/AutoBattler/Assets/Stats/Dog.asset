@@ -14,8 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Index: 1
   Name: Skeleton dog
-  Description: The dog attacks the first enemy
+  Description: The Skeleton dog does a big attack to the first enemy.
   Cost: 2
   Damage: 4
   Health: 2
-  CharacterSprite: {fileID: 21300000, guid: dc9d13ec921ea9f4c9088c22c87e1747, type: 3}
+  CharacterSpriteLevel1: {fileID: 21300000, guid: dc9d13ec921ea9f4c9088c22c87e1747, type: 3}
+  CharacterSpriteLevel2: {fileID: 0}
+  CharacterSpriteLevel3: {fileID: 0}
+  Type: 0

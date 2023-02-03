@@ -573,7 +573,7 @@ public class GameController : MonoBehaviour
             if (teamArr[i] == '|')
                 numOfDividers++;
 
-            if (numOfDividers == 3)
+            if (numOfDividers == 4)
             {
                 numOfDividers = 0;
                 board[currentIndex].GetComponent<CharacterHolder>().SetCharacterObjActive(true);
